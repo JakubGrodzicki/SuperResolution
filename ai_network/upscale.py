@@ -118,7 +118,12 @@ def upscale_image(image_path, checkpoint_dir, extension, output_dir):
         output_dir: Directory to save output images
     """
     # Setup device
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    if torch.cuda.is_available():
+        device = torch.device('cuda')
+    elif hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+        device = torch.device('mps')
+    else:
+        device = torch.device('cpu')
     print(f"Using device: {device}")
 
     # Load image
@@ -186,6 +191,12 @@ def upscale_image(image_path, checkpoint_dir, extension, output_dir):
             del model, checkpoint
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
+                torch.cuda.ipc_collect()
+                print('GPU memory cleared.')
+            elif device.type == 'mps':
+                torch.mps.empty_cache()
+                torch.mps.ipc_collect()
+                print('MPS memory cleared.')
                 
         except Exception as e:
             print(f"ERROR processing model {idx}: {str(e)}")

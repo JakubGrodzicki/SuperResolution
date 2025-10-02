@@ -1,6 +1,6 @@
 # Core deep learning framework
-torch>=1.9.0
-torchvision>=0.10.0
+torch>=1.12.0
+torchvision>=0.13.0
 
 # Computer vision and image processing
 opencv-python>=4.5.0
@@ -14,9 +14,14 @@ scipy>=1.7.0
 tqdm>=4.60.0
 
 # Optional: For CUDA support (uncomment if using GPU)
-# torch>=1.9.0+cu111
-# torchvision>=0.10.0+cu111
+# torch>=1.12.0+cu116
+# torchvision>=0.13.0+cu116
 
 # Development and testing (optional)
 # pytest>=6.0.0
 # matplotlib>=3.3.0
+
+# Platform-specific notes:
+# - Apple Silicon (M1-M4): MPS acceleration supported natively with torch>=1.12.0
+# - CUDA GPUs: Use the CUDA-specific versions above for optimal performance
+# - CPU-only: Standard versions work on all platforms

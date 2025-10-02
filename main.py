@@ -3,7 +3,7 @@ import os
 from Interpolation import nearest_neighbor_interpolation, bilinear_interpolation, bicubic_interpolation, lanczos_interpolation, area_based_interpolation, hermite_interpolation
 from ai_network.UNet import train
 from ai_network.upscale import upscale_image
-#from ai_network.MassUpscale import upscale_folder
+#from ai_network.MassUpscale import process_single_image, load_checkpoints
 from argparse import Namespace
 
 def load_image(path):
@@ -61,6 +61,7 @@ def main():
     print("5. Area-based Interpolation")
     print("6. Hermite Interpolation")
     print("7. U-Net Super-Resolution")
+    print("8. U-Net Super-Resolution Mass Upscaling - WIP")
 
     choice = int(input("Enter your choice (1-7): "))
     if choice == 1:
@@ -84,22 +85,36 @@ def main():
     elif choice == 7:
         try:
             # Find all checkpoint files in ./ai_network/checkpoints path
+            if not os.path.exists(model_path):
+                os.makedirs(model_path)
             models_list = [f for f in os.listdir(model_path) if f.endswith(".ph") or f.endswith(".pth")]
             if len(models_list) == 0:
                 print("No models found in ./ai_network/checkpoints path.")
                 print("Training new model...")
                 train(args)
                 print("Model trained successfully.")
+                print("Upscaling image with U-Net model...")
+                output_dir = "./upscaled"
+                upscale_image(path, model_path, ".pt", output_dir)
+                print("Image upscaled successfully.")
+            else:
+                pass
+        except Exception as e:
+            print("Error: " + str(e))
+    elif choice == 8:
+        try:
+            if not os.path.exists(model_path):
+                os.makedirs(model_path)
+            # Find all checkpoint files in ./ai_network/checkpoints path
+            models_list = [f for f in os.listdir(model_path) if f.endswith(".ph") or f.endswith(".pth")]
+            if len(models_list) == 0:
+                print("No models found in ./ai_network/checkpoints path.")
             else:
                 pass
         except Exception as e:
             print("Error: " + str(e))
         finally:
-            # Upscale image with U-Net model
-            print("Upscaling image with U-Net model...")
-            output_dir = "./upscaled"
-            upscale_image(path, model_path, ".pt", output_dir)
-            print("Image upscaled successfully.")
+            print("FEATURE WIP")
     else:
         print("Invalid choice. Exiting...")
         return

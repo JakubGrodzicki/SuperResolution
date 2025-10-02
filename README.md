@@ -28,6 +28,8 @@ This application enables users to upscale images using multiple approaches:
 - **Advanced Training Pipeline**: Includes data augmentation, combined loss functions, and early stopping
 - **Batch Processing**: Mass upscaling capabilities for processing entire folders
 - **Memory Optimization**: Efficient GPU/CPU memory management
+- **Apple Silicon Support**: Optimized training and inference for Apple Silicon processors (M1-M4)
+- **CPU Optimization**: Enhanced CPU training performance for systems without dedicated GPUs
 
 ## 🛠️ Technical Specifications
 
@@ -47,6 +49,7 @@ This application enables users to upscale images using multiple approaches:
 - **Early Stopping**: Prevents overfitting with patience mechanism
 - **Mixed Precision Training**: Automatic mixed precision for faster training
 - **Checkpoint Management**: Automatic saving of best models and periodic checkpoints
+- **Multi-Device Support**: Automatic detection and optimization for CUDA, Apple Silicon (MPS), and CPU
 
 ### Processing Capabilities
 
@@ -61,6 +64,8 @@ This application enables users to upscale images using multiple approaches:
 
 - **Python**: 3.8 or higher
 - **GPU**: CUDA-compatible GPU recommended for training (optional for inference)
+- **Apple Silicon**: M1-M4 processors supported with MPS acceleration
+- **CPU**: Optimized for CPU-only systems
 
 ### Dependencies
 
@@ -254,7 +259,7 @@ Applied jointly to low/high-resolution pairs:
 5. **Early Stopping**: Prevents overfitting
 6. **Memory Management**: Automatic GPU memory cleanup
 
-## 📁 Output Structure
+## 📂 Output Structure
 
 ### Single Image Processing
 
@@ -310,11 +315,18 @@ Solution: Ensure all dependencies are installed correctly
 - Adjust batch size based on available GPU memory
 - Monitor GPU utilization during training
 
+**Apple Silicon (M1-M4):**
+
+- Automatic MPS acceleration detection and usage
+- Optimized memory management for unified memory architecture
+- Recommended for Mac users with Apple Silicon
+
 **CPU Training:**
 
 - Expect longer training times
 - Consider reducing model complexity for CPU-only setups
 - Use smaller batch sizes
+- Optimized performance for multi-core processors
 
 ## 🤝 Contributing
 
@@ -324,7 +336,7 @@ Solution: Ensure all dependencies are installed correctly
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📝 License
+## 📄 License
 
 This project is licensed under the MIT License.
 

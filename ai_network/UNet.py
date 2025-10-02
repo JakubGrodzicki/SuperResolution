@@ -268,7 +268,13 @@ def train(args):
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size)
     
     # Initialize model, loss, and optimizer
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    if torch.cuda.is_available():
+        device = torch.device('cuda')
+    elif hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+        device = torch.device('mps')
+    else:
+        device = torch.device('cpu')
+
     logger.info(f"Using device: {device}")
     model = UNet(dropout=args.dropout).to(device)
     criterion = CombinedLoss(alpha=args.alpha).to(device)
@@ -283,7 +289,15 @@ def train(args):
     best_val_loss = float('inf')  # Track the best validation loss
     early_stop_counter = 0       # Counter for early stopping
     
-    scaler = torch.amp.GradScaler()
+    use_amp = device.type == 'cuda'
+    scaler = torch.amp.GradScaler('cuda') if use_amp else None
+    
+    if device.type == 'mps':
+        logger.info("MPS backend detected - running without mixed precision (float32)")
+    elif use_amp:
+        logger.info("CUDA backend detected - using mixed precision training (AMP)")
+    else:
+        logger.info("CPU backend detected - running without mixed precision")
 
     try:
         # Training loop
@@ -298,13 +312,19 @@ def train(args):
                 
                 optimizer.zero_grad()
 
-                with torch.amp.autocast(device.type, enabled=True):
+                if use_amp and scaler is not None:
+                    with torch.amp.autocast(device.type, enabled=True):
+                        outputs = model(low)
+                        loss = criterion(outputs, high)
+                    scaler.scale(loss).backward()
+                    scaler.step(optimizer)
+                    scaler.update()
+                else:
+                    # For MPS and CPU
                     outputs = model(low)
                     loss = criterion(outputs, high)
-                
-                scaler.scale(loss).backward()
-                scaler.step(optimizer)
-                scaler.update()
+                    loss.backward()
+                    optimizer.step()
                 
                 train_loss += loss.item() * low.size(0)
             
@@ -366,5 +386,9 @@ def train(args):
             torch.cuda.empty_cache()
             torch.cuda.ipc_collect()
             logger.info('GPU memory cleared.')
+        elif device.type == 'mps':
+            torch.mps.empty_cache()
+            torch.mps.ipc_collect()
+            logger.info('MPS memory cleared.')
         gc.collect()
         logger.info('CPU memory cleared.')
