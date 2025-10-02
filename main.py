@@ -1,13 +1,166 @@
 import cv2
 import os
+import sys
 from pathlib import Path
 from Interpolation import nearest_neighbor_interpolation, bilinear_interpolation, bicubic_interpolation, lanczos_interpolation, area_based_interpolation, hermite_interpolation
 from ai_network.UNet import train
 from ai_network.upscale import upscale_image
-from argparse import Namespace
+from argparse import Namespace, ArgumentParser
 
 #Allowed image extensions
 IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif', '.webp'}
+
+def get_path_from_gui():
+    """
+    Opens a graphical file selection dialog.
+    Returns the selected path or None if cancelled.
+    """
+    try:
+        from tkinter import Tk, Toplevel, Button, Label, filedialog
+        import tkinter as tk
+        
+        # Hide the main window
+        root = Tk()
+        root.withdraw()
+        
+        # Function to store the user's choice
+        choice_result = {'value': None}
+        
+        # Create a dialog window
+        dialog = Toplevel(root)
+        dialog.title("Select Input Type")
+        dialog.geometry("350x150")
+        dialog.resizable(False, False)
+        
+        # Center the dialog window
+        dialog.update_idletasks()
+        width = dialog.winfo_width()
+        height = dialog.winfo_height()
+        x = (dialog.winfo_screenwidth() // 2) - (width // 2)
+        y = (dialog.winfo_screenheight() // 2) - (height // 2)
+        dialog.geometry(f'{width}x{height}+{x}+{y}')
+        
+        # Set the dialog window to be on top and active
+        dialog.attributes('-topmost', True)
+        dialog.focus_force()
+        
+        # Create a label with instructions
+        label = Label(dialog, 
+                     text="Choose input type for processing:",
+                     font=('Arial', 11))
+        label.pack(pady=20)
+        
+        # Create a frame for the buttons
+        button_frame = tk.Frame(dialog)
+        button_frame.pack(pady=10)
+        
+        # Function to store the user's choice
+        def select_folder():
+            choice_result['value'] = 'folder'
+            dialog.destroy()
+        
+        def select_file():
+            choice_result['value'] = 'file'
+            dialog.destroy()
+        
+        def cancel():
+            choice_result['value'] = None
+            dialog.destroy()
+        
+        # Create buttons for the user to select
+        btn_folder = Button(button_frame, 
+                           text="Folder", 
+                           width=10,
+                           height=2,
+                           command=select_folder,
+                           font=('Arial', 10))
+        btn_folder.pack(side=tk.LEFT, padx=5)
+        
+        btn_file = Button(button_frame, 
+                         text="File", 
+                         width=10,
+                         height=2,
+                         command=select_file,
+                         font=('Arial', 10))
+        btn_file.pack(side=tk.LEFT, padx=5)
+        
+        btn_cancel = Button(button_frame, 
+                           text="Cancel", 
+                           width=10,
+                           height=2,
+                           command=cancel,
+                           font=('Arial', 10))
+        btn_cancel.pack(side=tk.LEFT, padx=5)
+        
+        # Handle window closing
+        dialog.protocol("WM_DELETE_WINDOW", cancel)
+        
+        # Handle keyboard shortcuts
+        dialog.bind('<Escape>', lambda e: cancel())
+        dialog.bind('<Return>', lambda e: select_file())
+        
+        # Wait for the user to select something
+        dialog.wait_window()
+        
+        # Open the selected file/folder
+        path = ""
+        if choice_result['value'] == 'folder':
+            path = filedialog.askdirectory(
+                title="Select folder with images",
+                initialdir=os.getcwd()
+            )
+        elif choice_result['value'] == 'file':
+            path = filedialog.askopenfilename(
+                title="Select image file",
+                initialdir=os.getcwd(),
+                filetypes=[
+                    ("Image files", "*.jpg *.jpeg *.png *.bmp *.tiff *.tif *.webp"),
+                    ("JPG/JPEG", "*.jpg *.jpeg"),
+                    ("PNG", "*.png"),
+                    ("BMP", "*.bmp"),
+                    ("TIFF", "*.tiff *.tif"),
+                    ("WEBP", "*.webp"),
+                    ("All files", "*.*")
+                ]
+            )
+        else:
+            # User cancelled
+            root.destroy()
+            return None
+        
+        root.destroy()
+        return path if path else None
+        
+    except ImportError:
+        print("Warning: tkinter not available, falling back to command line input")
+        return None
+    except Exception as e:
+        print(f"Error with GUI dialog: {e}")
+        return None
+
+def get_input_path():
+    """
+    Gets the input path from the user - tries GUI first, then CLI as a fallback.
+    """
+    # First try GUI
+    print("Opening file selection dialog...")
+    path = get_path_from_gui()
+    
+    if path is None:
+        # Fallback to CLI if GUI didn't work or was cancelled
+        print("\n" + "="*50)
+        print("GUI selection cancelled or unavailable.")
+        print("Please enter the path manually.")
+        print("="*50)
+        
+        raw_path = input("Enter image path or folder path (or 'quit' to exit): ")
+        
+        if raw_path.lower() in ['quit', 'exit', 'q']:
+            return None
+        
+        path = clean_path(raw_path)
+    
+    return path
 
 def clean_path(path_string):
     """
@@ -198,15 +351,55 @@ def prepare_unet_model():
     
     return True
 
+def parse_arguments():
+    """
+    Parse command line arguments for batch mode.
+    """
+    parser = ArgumentParser(description='Image Super-Resolution Tool')
+    parser.add_argument('--input', '-i', type=str, help='Input image or folder path')
+    parser.add_argument('--method', '-m', type=int, choices=range(1, 8), 
+                       help='Upscaling method (1-7)')
+    parser.add_argument('--output', '-o', type=str, default='./upscaled',
+                       help='Output directory (default: ./upscaled)')
+    parser.add_argument('--no-gui', action='store_true',
+                       help='Disable GUI file selection')
+    
+    args = parser.parse_args()
+    return args
+
 
 def main():
     """
     Main function of the program. Works as a user interface.
     """
-    # Get path and check if it is correct
-    raw_path = input("Enter image path or folder path: ")
-    path = clean_path(raw_path)
+    print("\n" + "="*50)
+    print("            IMAGE SUPER-RESOLUTION TOOL")
+    print("="*50)
+
+    # Parse command line arguments
+    cmd_args = parse_arguments()
+
+    # Determine path source
+    path = None
+    method_choice = None
+    output_dir = cmd_args.output
     
+    if cmd_args.input:
+        # Use command line argument
+        path = clean_path(cmd_args.input)
+        print(f"Using input path from command line: {path}")
+    else:
+        # Get path interactively (GUI or CLI)
+        if cmd_args.no_gui:
+            raw_path = input("Enter image path or folder path: ")
+            path = clean_path(raw_path)
+        else:
+            path = get_input_path()
+    
+    if path is None:
+        print("No path selected. Exiting...")
+        return
+
     if not path:
         print("Error: Empty path provided.")
         return
