@@ -512,7 +512,7 @@ Currently, the maximum supported size is 4096 x 4096 pixels, and the minimum siz
 
 ℹ️ Customizing Image Size Limits
 
-If you need to change these limits, you can edit the validate_image_size function in the **`upscale.py`** file.
+If you need to change these limits, you can edit the **`validate_image_size`** function in the **`upscale.py`** file.
 
 The parameters to modify are:
 
