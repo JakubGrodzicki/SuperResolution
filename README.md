@@ -504,13 +504,15 @@ Solution: Ensure dataset paths are correct; training will start automatically
 
 **4. Image Too Large / Image Too Small 📏**
 
-Currently, the **maximum supported size** is $4096 \times 4096$ pixels, and the **minimum size** is $32 \times 32$ pixels.
+```
+Currently, the maximum supported size is 4096 x 4096 pixels, and the minimum size is 32 x 32 pixels.
+```
 
 ---
 
-**ℹ️ Customizing Image Size Limits**
+ℹ️ Customizing Image Size Limits
 
-If you need to change these limits, you can edit the `validate_image_size` function in the **`upscale.py`** file.
+If you need to change these limits, you can edit the validate_image_size function in the **`upscale.py`** file.
 
 The parameters to modify are:
 
