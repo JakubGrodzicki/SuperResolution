@@ -3,7 +3,7 @@ import os
 from Interpolation import nearest_neighbor_interpolation, bilinear_interpolation, bicubic_interpolation, lanczos_interpolation, area_based_interpolation, hermite_interpolation
 from ai_network.UNet import train
 from ai_network.upscale import upscale_image
-from ai_network.MassUpscale import upscale_folder
+#from ai_network.MassUpscale import upscale_folder
 from argparse import Namespace
 
 def load_image(path):

@@ -4,7 +4,7 @@ import torch
 import warnings
 from PIL import Image
 from torchvision import transforms
-from UNet import UNet
+from .UNet import UNet
 
 def load_checkpoints(checkpoint_dir, extension):
     """Searches and sorts model files in the given directory by epoch number."""
