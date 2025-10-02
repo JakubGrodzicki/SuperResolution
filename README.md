@@ -13,7 +13,7 @@ This application enables users to upscale images using multiple approaches:
 - Bicubic Interpolation
 - Lanczos Interpolation
 - Area-based Interpolation
-- Hermite Interpolation (custom implementation)
+- Hermite Interpolation (custom implementation; may run slowly due to computational complexity)
 
 **Deep Learning Approach:**
 
@@ -22,11 +22,13 @@ This application enables users to upscale images using multiple approaches:
 ## ✨ Key Features
 
 - **Interactive CLI**: Simple command-line interface for method selection
+- **Automatic File/Folder Detection**: Process single images or entire folders automatically
+- **Batch Processing**: Built-in support for processing multiple images at once
+- **Intelligent Input Handling**: Automatic cleaning of paths (quotes, spaces, etc.)
 - **Automatic Model Management**: Detects existing U-Net checkpoints or starts training automatically
 - **Sequential Processing**: Uses multiple U-Net checkpoints for progressive enhancement
 - **Dynamic Resolution Support**: Handles images of various sizes with intelligent padding
 - **Advanced Training Pipeline**: Includes data augmentation, combined loss functions, and early stopping
-- **Batch Processing**: Mass upscaling capabilities for processing entire folders
 - **Memory Optimization**: Efficient GPU/CPU memory management
 - **Apple Silicon Support**: Optimized training and inference for Apple Silicon processors (M1-M4)
 - **CPU Optimization**: Enhanced CPU training performance for systems without dedicated GPUs
@@ -57,6 +59,7 @@ This application enables users to upscale images using multiple approaches:
 - **Intelligent Padding**: Automatic padding to multiples of 16 for U-Net compatibility
 - **Sequential Enhancement**: Progressive upscaling through multiple model checkpoints
 - **Memory Safety**: Validation and cleanup to prevent GPU memory overflow
+- **Format Support**: JPG, JPEG, PNG, BMP, TIFF, TIF, WEBP
 
 ## 📋 Requirements
 
@@ -77,6 +80,7 @@ scipy>=1.7.0
 Pillow>=8.0.0
 tqdm>=4.60.0
 numpy>=1.21.0
+pathlib
 ```
 
 Install all dependencies:
@@ -102,8 +106,7 @@ Image-Super-Resolution-Tool/
 ├── ai_network/                 # Deep learning components
 │   ├── __init__.py
 │   ├── UNet.py                 # U-Net model and training logic
-│   ├── upscale.py             # Single image upscaling
-│   ├── MassUpscale.py         # Batch processing functionality
+│   ├── upscale.py             # Image upscaling implementation
 │   └── checkpoints/           # Model checkpoints directory
 └── upscaled/                  # Output directory for results
 ```
@@ -131,10 +134,87 @@ python main.py
 
 ### 4. Follow the Interactive Prompts
 
-1. Enter the path to your image
+1. Enter the path to your image or folder:
+   - **Single file**: `C:\Users\Photos\image.jpg`
+   - **Folder**: `./images/` or `"C:\Users\Photos"`
+   - Quotes are automatically handled
 2. Select upscaling method (1-7)
-3. Wait for processing to complete
-4. Find results in the `./upscaled/` directory
+3. For folders, confirm batch processing
+4. Wait for processing to complete
+5. Find results in the `./upscaled/` directory
+
+## 💡 Usage Examples
+
+### Single Image Processing
+
+```bash
+$ python main.py
+Enter image path or folder path: photo.jpg
+Processing single image: photo.jpg
+
+Select interpolation/upscaling method:
+1. Nearest Neighbor Interpolation
+2. Bilinear Interpolation
+3. Bicubic Interpolation
+4. Lanczos Interpolation
+5. Area-based Interpolation
+6. Hermite Interpolation
+7. U-Net Super-Resolution
+Enter your choice (1-7): 3
+
+Processing completed!
+Output directory: /path/to/upscaled
+```
+
+### Batch Processing (Folder)
+
+```bash
+$ python main.py
+Enter image path or folder path: "./vacation_photos"
+Found 15 image(s) in folder:
+  - IMG_001.jpg
+  - IMG_002.jpg
+  - ...
+
+Select interpolation/upscaling method:
+1. Nearest Neighbor Interpolation
+...
+7. U-Net Super-Resolution
+Enter your choice (1-7): 7
+
+Process all 15 images? (y/n): y
+
+Starting processing...
+--------------------------------------------------
+[1/15] Processing: IMG_001.jpg
+Saved: ./upscaled/IMG_001_upscaled.jpg
+[2/15] Processing: IMG_002.jpg
+...
+
+==================================================
+Processing completed!
+Successfully processed: 15 image(s)
+Output directory: /path/to/upscaled
+```
+
+### Path Input Examples
+
+The program automatically handles various path formats:
+
+```bash
+# With quotes (automatically removed)
+"C:\Users\John\Pictures\photo.jpg"
+
+# Without quotes
+/home/user/images/photo.png
+
+# Relative paths
+./images/
+../photos/vacation.jpg
+
+# With spaces
+"C:\My Documents\My Pictures\image.jpg"
+```
 
 ## 📊 Dataset Configuration
 
@@ -195,19 +275,26 @@ your_dataset/
 
 ## 🔧 Advanced Usage
 
-### Batch Processing (Programmatic)
+### Programmatic Batch Processing
 
-For processing entire folders, you can extend the main function:
+You can extend the functionality for custom batch processing:
 
 ```python
-from ai_network.MassUpscale import upscale_folder
+from pathlib import Path
+import cv2
 
-# Process entire folder
-input_directory = "path/to/input/images"
-output_directory = "path/to/output/images"
-checkpoint_directory = "./ai_network/checkpoints"
+def process_images_with_filter(input_dir, output_dir, method=3):
+    """Process all images in a directory with a specific method"""
+    input_path = Path(input_dir)
 
-upscale_folder(input_directory, checkpoint_directory, ".pt", output_directory)
+    for image_file in input_path.glob("*.jpg"):
+        # Your custom processing logic here
+        image = cv2.imread(str(image_file))
+        # Apply selected method
+        processed = apply_method(image, method)
+        # Save with custom naming
+        output_path = Path(output_dir) / f"{image_file.stem}_enhanced.jpg"
+        cv2.imwrite(str(output_path), processed)
 ```
 
 ### Custom Training Configuration
@@ -265,18 +352,26 @@ Applied jointly to low/high-resolution pairs:
 
 ```
 upscaled/
-└── upscaled_after_1.png    # Result after first model
-└── upscaled_after_2.png    # Result after second model (if available)
-└── ...                     # Progressive results
+└── image_name_upscaled.png    # Processed image with suffix
 ```
 
 ### Batch Processing
 
 ```
-upscaled_batch/
-├── image1.png
-├── image2.png
+upscaled/
+├── image1_upscaled.png
+├── image2_upscaled.png
+├── image3_upscaled.png
 └── ...
+```
+
+### Sequential U-Net Processing
+
+```
+upscaled/
+├── image_upscaled_after_1.png    # Result after first model
+├── image_upscaled_after_2.png    # Result after second model (if available)
+└── ...                           # Progressive results
 ```
 
 ## 🐛 Troubleshooting
@@ -305,6 +400,13 @@ Solution: Maximum supported size is 4096×4096 pixels
 
 ```
 Solution: Ensure all dependencies are installed correctly
+```
+
+**5. Path Not Found**
+
+```
+Solution: Check if path exists and remove any extra quotes or spaces
+The program now handles quotes automatically
 ```
 
 ### Performance Optimization
