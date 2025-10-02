@@ -1,3 +1,8 @@
+# ===================================
+# Image Super-Resolution Tool
+# Python Package Requirements
+# ===================================
+
 # Core deep learning framework
 torch>=1.12.0
 torchvision>=0.13.0
@@ -13,15 +18,80 @@ scipy>=1.7.0
 # Progress tracking and utilities
 tqdm>=4.60.0
 
-# Optional: For CUDA support (uncomment if using GPU)
-# torch>=1.12.0+cu116
-# torchvision>=0.13.0+cu116
+# ===================================
+# GUI Support (Platform-Specific)
+# ===================================
+# Note: tkinter is required for GUI file selection
+# but it cannot be installed via pip.
+#
+# Installation instructions by platform:
+#
+# WINDOWS & macOS:
+#   - tkinter comes pre-installed with Python
+#   - No additional action needed
+#
+# LINUX (Ubuntu/Debian):
+#   sudo apt-get update
+#   sudo apt-get install python3-tk
+#
+# LINUX (Fedora/RHEL/CentOS):
+#   sudo dnf install python3-tkinter
+#
+# LINUX (Arch/Manjaro):
+#   sudo pacman -S tk
+#
+# To test if tkinter is available:
+#   python3 -c "import tkinter; print('✓ Tkinter available')"
+#
+# If tkinter is not available, use:
+#   python main.py --no-gui
+# ===================================
 
-# Development and testing (optional)
-# pytest>=6.0.0
-# matplotlib>=3.3.0
+# ===================================
+# Optional: GPU Support
+# ===================================
+# For CUDA GPU support, install PyTorch with CUDA:
+#
+# CUDA 11.8:
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+#
+# CUDA 12.1:
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+#
+# For more CUDA versions, visit:
+# https://pytorch.org/get-started/locally/
+# ===================================
 
-# Platform-specific notes:
-# - Apple Silicon (M1-M4): MPS acceleration supported natively with torch>=1.12.0
-# - CUDA GPUs: Use the CUDA-specific versions above for optimal performance
-# - CPU-only: Standard versions work on all platforms
+# ===================================
+# Platform Notes
+# ===================================
+# Apple Silicon (M1-M4):
+#   - MPS acceleration is supported natively
+#   - Use standard torch>=1.12.0
+#
+# Windows Subsystem for Linux (WSL):
+#   - GUI requires X server setup (VcXsrv, Xming)
+#   - Or use --no-gui flag
+#
+# Docker containers:
+#   - GUI not supported
+#   - Always use --no-gui flag
+#
+# SSH connections:
+#   - Use X11 forwarding: ssh -X user@host
+#   - Or use --no-gui flag
+# ===================================
+
+# ===================================
+# Development Dependencies (Optional)
+# ===================================
+# Uncomment if needed for development:
+#
+# pytest>=6.0.0          # Testing framework
+# black>=22.0.0          # Code formatter
+# flake8>=4.0.0          # Linting
+# mypy>=0.990            # Type checking
+# matplotlib>=3.3.0      # Plotting for analysis
+# jupyter>=1.0.0         # Interactive development
+# ipykernel>=6.0.0       # Jupyter kernel
+# ===================================

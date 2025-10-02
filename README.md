@@ -21,10 +21,12 @@ This application enables users to upscale images using multiple approaches:
 
 ## ✨ Key Features
 
-- **Interactive CLI**: Simple command-line interface for method selection
+- **Graphical File Selection**: Native OS file/folder selection dialogs (Windows Explorer, macOS Finder, Linux file managers)
+- **Interactive CLI**: Simple command-line interface with automatic fallback when GUI is unavailable
 - **Automatic File/Folder Detection**: Process single images or entire folders automatically
 - **Batch Processing**: Built-in support for processing multiple images at once
 - **Intelligent Input Handling**: Automatic cleaning of paths (quotes, spaces, etc.)
+- **Command-Line Arguments**: Support for automation and scripting
 - **Automatic Model Management**: Detects existing U-Net checkpoints or starts training automatically
 - **Sequential Processing**: Uses multiple U-Net checkpoints for progressive enhancement
 - **Dynamic Resolution Support**: Handles images of various sizes with intelligent padding
@@ -55,7 +57,7 @@ This application enables users to upscale images using multiple approaches:
 
 ### Processing Capabilities
 
-- **Dynamic Resolution**: Supports images from 32×32 to 4096×4096 pixels
+- **Dynamic Resolution**: Supports images from 32×32 to 4096×4096 pixels (Threshold values can be adjusted)
 - **Intelligent Padding**: Automatic padding to multiples of 16 for U-Net compatibility
 - **Sequential Enhancement**: Progressive upscaling through multiple model checkpoints
 - **Memory Safety**: Validation and cleanup to prevent GPU memory overflow
@@ -69,24 +71,65 @@ This application enables users to upscale images using multiple approaches:
 - **GPU**: CUDA-compatible GPU recommended for training (optional for inference)
 - **Apple Silicon**: M1-M4 processors supported with MPS acceleration
 - **CPU**: Optimized for CPU-only systems
+- **GUI Support**: Tkinter (usually included with Python, see platform-specific notes below)
 
-### Dependencies
+### Core Dependencies
 
 ```
 torch>=1.12.0
-torchvision>=0.10.0
+torchvision>=0.13.0
 opencv-python>=4.5.0
 scipy>=1.7.0
 Pillow>=8.0.0
 tqdm>=4.60.0
 numpy>=1.21.0
-pathlib
 ```
 
-Install all dependencies:
+### Platform-Specific Installation
+
+**Windows:**
 
 ```bash
-pip install torch torchvision opencv-python scipy Pillow tqdm numpy
+# Tkinter is included with Python by default
+pip install -r requirements.txt
+```
+
+**macOS:**
+
+```bash
+# Tkinter is included with Python by default
+pip install -r requirements.txt
+```
+
+**Linux (Ubuntu/Debian):**
+
+```bash
+# Install tkinter if not present
+sudo apt-get update
+sudo apt-get install python3-tk
+
+# Install Python dependencies
+pip install -r requirements.txt
+```
+
+**Linux (Fedora/RHEL/CentOS):**
+
+```bash
+# Install tkinter if not present
+sudo dnf install python3-tkinter
+
+# Install Python dependencies
+pip install -r requirements.txt
+```
+
+**Linux (Arch/Manjaro):**
+
+```bash
+# Install tkinter if not present
+sudo pacman -S tk
+
+# Install Python dependencies
+pip install -r requirements.txt
 ```
 
 ## 📁 Project Structure
@@ -95,6 +138,7 @@ pip install torch torchvision opencv-python scipy Pillow tqdm numpy
 Image-Super-Resolution-Tool/
 ├── main.py                     # Main application entry point
 ├── README.md                   # This file
+├── requirements.txt            # Python package dependencies
 ├── Interpolation/              # Traditional interpolation methods
 │   ├── __init__.py
 │   ├── nearest_neighbor_interpolation.py
@@ -123,34 +167,69 @@ cd Image-Super-Resolution-Tool
 ### 2. Install Dependencies
 
 ```bash
+# Check if tkinter is available (Linux users)
+python3 -c "import tkinter"
+
+# If error on Linux, install tkinter first (see Platform-Specific Installation above)
+
+# Install Python packages
 pip install -r requirements.txt
 ```
 
 ### 3. Run the Application
 
+**Interactive Mode with GUI (Default):**
+
 ```bash
 python main.py
 ```
 
+**Interactive Mode without GUI:**
+
+```bash
+python main.py --no-gui
+```
+
+**Command-Line Mode (Automation):**
+
+```bash
+# Process single image
+python main.py --input image.jpg --method 3 --output ./results
+
+# Process entire folder
+python main.py --input ./images --method 7 --output ./upscaled
+```
+
 ### 4. Follow the Interactive Prompts
 
-1. Enter the path to your image or folder:
-   - **Single file**: `C:\Users\Photos\image.jpg`
-   - **Folder**: `./images/` or `"C:\Users\Photos"`
-   - Quotes are automatically handled
-2. Select upscaling method (1-7)
-3. For folders, confirm batch processing
-4. Wait for processing to complete
-5. Find results in the `./upscaled/` directory
+When running in interactive mode:
+
+1. **GUI Mode (default)**:
+   - A dialog appears asking to select "Folder", "File", or "Cancel"
+   - Choose your input type and browse to select
+2. **CLI Mode (fallback or --no-gui)**:
+
+   - Enter the path manually when prompted
+   - Supports paths with quotes and spaces
+
+3. Select upscaling method (1-7)
+4. For folders, confirm batch processing
+5. Wait for processing to complete
+6. Find results in the `./upscaled/` directory
 
 ## 💡 Usage Examples
 
-### Single Image Processing
+### GUI Mode (Default)
 
 ```bash
 $ python main.py
-Enter image path or folder path: photo.jpg
-Processing single image: photo.jpg
+
+==================================================
+            IMAGE SUPER-RESOLUTION TOOL
+==================================================
+Opening file selection dialog...
+[GUI dialog appears - user selects "File" then chooses image.jpg]
+Processing single image: /home/user/image.jpg
 
 Select interpolation/upscaling method:
 1. Nearest Neighbor Interpolation
@@ -166,11 +245,25 @@ Processing completed!
 Output directory: /path/to/upscaled
 ```
 
+### Command-Line Arguments (Automation)
+
+```bash
+# Process with specific method
+python main.py --input photo.jpg --method 2 --output ./enhanced
+
+# Batch process folder
+python main.py --input ./vacation_photos --method 7 --output ./enhanced_photos
+
+# Force CLI mode even with GUI available
+python main.py --no-gui
+```
+
 ### Batch Processing (Folder)
 
 ```bash
 $ python main.py
-Enter image path or folder path: "./vacation_photos"
+[User selects folder via GUI]
+
 Found 15 image(s) in folder:
   - IMG_001.jpg
   - IMG_002.jpg
@@ -197,7 +290,7 @@ Successfully processed: 15 image(s)
 Output directory: /path/to/upscaled
 ```
 
-### Path Input Examples
+### Path Input Examples (CLI Mode)
 
 The program automatically handles various path formats:
 
@@ -215,6 +308,15 @@ The program automatically handles various path formats:
 # With spaces
 "C:\My Documents\My Pictures\image.jpg"
 ```
+
+## 🖥️ Command-Line Arguments
+
+| Argument   | Short | Description                | Example              |
+| ---------- | ----- | -------------------------- | -------------------- |
+| `--input`  | `-i`  | Input image or folder path | `--input ./images`   |
+| `--method` | `-m`  | Upscaling method (1-7)     | `--method 3`         |
+| `--output` | `-o`  | Output directory           | `--output ./results` |
+| `--no-gui` |       | Disable GUI file selection | `--no-gui`           |
 
 ## 📊 Dataset Configuration
 
@@ -378,31 +480,56 @@ upscaled/
 
 ### Common Issues
 
-**1. CUDA Out of Memory**
+**1. Tkinter Not Available**
+
+```
+Error: ImportError: No module named 'tkinter'
+Solution:
+- Linux: sudo apt-get install python3-tk (Ubuntu/Debian)
+- macOS/Windows: Should be included with Python
+- Alternative: Use --no-gui flag to bypass GUI
+```
+
+**2. CUDA Out of Memory**
 
 ```
 Solution: Reduce batch_size in args or use CPU mode
 ```
 
-**2. No Models Found**
+**3. No Models Found**
 
 ```
 Solution: Ensure dataset paths are correct; training will start automatically
 ```
 
-**3. Image Too Large**
+**4. Image Too Large / Image Too Small 📏**
+
+Currently, the **maximum supported size** is $4096 \times 4096$ pixels, and the **minimum size** is $32 \times 32$ pixels.
+
+---
+
+**ℹ️ Customizing Image Size Limits**
+
+If you need to change these limits, you can edit the `validate_image_size` function in the **`upscale.py`** file.
+
+The parameters to modify are:
+
+- `min_size` (default $32$)
+- `max_size` (default $4096$)
+
+The program automatically adjusts the size so that it is divisible by 16.
+
+**5. GUI Dialog Not Appearing**
 
 ```
-Solution: Maximum supported size is 4096×4096 pixels
+Possible causes:
+- Running through SSH without X forwarding
+- Using WSL without X server
+- Running in Docker container
+Solution: Use --no-gui flag or set up X forwarding
 ```
 
-**4. Import Errors**
-
-```
-Solution: Ensure all dependencies are installed correctly
-```
-
-**5. Path Not Found**
+**6. Path Not Found**
 
 ```
 Solution: Check if path exists and remove any extra quotes or spaces
@@ -433,9 +560,9 @@ The program now handles quotes automatically
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create a feature branch (`git checkout -b feature/feature`)
+3. Commit your changes (`git commit -m 'Add new feature'`)
+4. Push to the branch (`git push origin feature/new-feature`)
 5. Open a Pull Request
 
 ## 📄 License
