@@ -70,7 +70,7 @@ This application enables users to upscale images using multiple approaches:
 ### Dependencies
 
 ```
-torch>=1.9.0
+torch>=1.12.0
 torchvision>=0.10.0
 opencv-python>=4.5.0
 scipy>=1.7.0
