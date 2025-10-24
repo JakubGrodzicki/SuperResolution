@@ -171,7 +171,7 @@ def upscale_image(image_path, checkpoint_dir, extension, output_dir):
             model.load_state_dict(checkpoint['model_state_dict'])
             model.eval()
             
-            with torch.no_grad():
+            with torch.inference_mode():
                 output_tensor = model(current_input)
             
             # Update input for next model (keep padding)
