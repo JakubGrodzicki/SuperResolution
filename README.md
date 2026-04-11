@@ -2,7 +2,7 @@
 
 A comprehensive implementation of various image super-resolution techniques, including traditional interpolation methods and deep learning-based approaches using U-Net architecture. This repository contains the practical implementation of research conducted for a master's thesis on image super-resolution.
 
-## 🎯 Overview
+## Overview
 
 This application enables users to upscale images using multiple approaches:
 
@@ -19,7 +19,7 @@ This application enables users to upscale images using multiple approaches:
 
 - **U-Net-based Super-Resolution** with advanced features
 
-## ✨ Key Features
+## Key Features
 
 - **Graphical File Selection**: Native OS file/folder selection dialogs (Windows Explorer, macOS Finder, Linux file managers)
 - **Interactive CLI**: Simple command-line interface with automatic fallback when GUI is unavailable
@@ -35,7 +35,7 @@ This application enables users to upscale images using multiple approaches:
 - **Apple Silicon Support**: Optimized training and inference for Apple Silicon processors (M1-M4)
 - **CPU Optimization**: Enhanced CPU training performance for systems without dedicated GPUs
 
-## 🛠️ Technical Specifications
+## Technical Specifications
 
 ### U-Net Architecture
 
@@ -63,7 +63,7 @@ This application enables users to upscale images using multiple approaches:
 - **Memory Safety**: Validation and cleanup to prevent GPU memory overflow
 - **Format Support**: JPG, JPEG, PNG, BMP, TIFF, TIF, WEBP
 
-## 📋 Requirements
+## Requirements
 
 ### System Requirements
 
@@ -132,7 +132,7 @@ sudo pacman -S tk
 pip install -r requirements.txt
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 Image-Super-Resolution-Tool/
@@ -155,7 +155,7 @@ Image-Super-Resolution-Tool/
 └── upscaled/                  # Output directory for results
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Clone the Repository
 
@@ -217,7 +217,7 @@ When running in interactive mode:
 5. Wait for processing to complete
 6. Find results in the `./upscaled/` directory
 
-## 💡 Usage Examples
+## Usage Examples
 
 ### GUI Mode (Default)
 
@@ -309,7 +309,7 @@ The program automatically handles various path formats:
 "C:\My Documents\My Pictures\image.jpg"
 ```
 
-## 🖥️ Command-Line Arguments
+## Command-Line Arguments
 
 | Argument   | Short | Description                | Example              |
 | ---------- | ----- | -------------------------- | -------------------- |
@@ -318,7 +318,7 @@ The program automatically handles various path formats:
 | `--output` | `-o`  | Output directory           | `--output ./results` |
 | `--no-gui` |       | Disable GUI file selection | `--no-gui`           |
 
-## 📊 Dataset Configuration
+## Dataset Configuration
 
 For U-Net training, you need paired low-resolution and high-resolution images.
 
@@ -352,7 +352,7 @@ your_dataset/
     └── high/       # High-resolution validation images
 ```
 
-## ⚙️ Configuration Parameters
+## Configuration Parameters
 
 ### Training Parameters
 
@@ -375,7 +375,7 @@ your_dataset/
 - **Decoder Levels**: 4 (with transpose convolution)
 - **Skip Connections**: Between corresponding encoder-decoder levels
 
-## 🔧 Advanced Usage
+## Advanced Usage
 
 ### Programmatic Batch Processing
 
@@ -421,7 +421,7 @@ args = Namespace(
 )
 ```
 
-## 📈 Model Training Details
+## Model Training Details
 
 ### Loss Function
 
@@ -448,7 +448,7 @@ Applied jointly to low/high-resolution pairs:
 5. **Early Stopping**: Prevents overfitting
 6. **Memory Management**: Automatic GPU memory cleanup
 
-## 📂 Output Structure
+## Output Structure
 
 ### Single Image Processing
 
@@ -476,7 +476,7 @@ upscaled/
 └── ...                           # Progressive results
 ```
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -510,7 +510,7 @@ Currently, the maximum supported size is 4096 x 4096 pixels, and the minimum siz
 
 ---
 
-ℹ️ Customizing Image Size Limits
+Customizing Image Size Limits
 
 If you need to change these limits, you can edit the **`validate_image_size`** function in the **`upscale.py`** file.
 
@@ -559,7 +559,7 @@ The program now handles quotes automatically
 - Use smaller batch sizes
 - Optimized performance for multi-core processors
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/feature`)
@@ -567,18 +567,18 @@ The program now handles quotes automatically
 4. Push to the branch (`git push origin feature/new-feature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Based on master's thesis research in image super-resolution
 - U-Net architecture inspired by medical image segmentation applications
 - Dataset recommendations from Kaggle community
 - Traditional interpolation methods implemented using OpenCV and SciPy
 
-## 📧 Support
+## Support
 
 For questions, issues, or contributions, please open an issue on the GitHub repository.
 
