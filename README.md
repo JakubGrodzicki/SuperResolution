@@ -502,7 +502,7 @@ Solution: Reduce batch_size in args or use CPU mode
 Solution: Ensure dataset paths are correct; training will start automatically
 ```
 
-**4. Image Too Large / Image Too Small 📏**
+**4. Image Too Large / Image Too Small**
 
 ```
 Currently, the maximum supported size is 4096 x 4096 pixels, and the minimum size is 32 x 32 pixels.
